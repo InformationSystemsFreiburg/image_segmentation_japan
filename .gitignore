@@ -9,3 +9,4 @@ test.py
 /lightning_logs
 /MNIST
 /detectron2
+/detectron2-env

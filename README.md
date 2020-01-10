@@ -4,11 +4,15 @@
 
 - install [Python 3](https://www.python.org/ftp/python/3.8.1/python-3.8.1.exe) and add it to PATH
 - install [git](https://git-scm.com/download/win) and add it to PATH
+- clone this repository with
+`git clone https://github.com/InformationSystemsFreiburg/imgage_segmentation_tokyo`
 - install [Visual Studio Code Community Edition](https://visualstudio.microsoft.com/thank-you-downloading-visual-studio/?sku=Community&rel=16) to get the GCC compiler
 
 ```bash
 # check in terminal if gcc is installed, if not, try restarting the computer
 gcc --version
+# move to the folder of the image_segmentation-tokyo repo
+cd .\imgage_segmentation_tokyo\
 # create a new Python virtualenvironment
 pip install virtualenv
 virtualenv detectron2-env
@@ -21,8 +25,10 @@ pip install "git+https://github.com/philferriere/cocoapi.git#egg=pycocotools&sub
 ```
 
 Pytorch libraries have to be changed on Windows to work with `detectron2`
+
 Location of first file:
 `.\detectron2-env\Lib\site-packages\torch\include\torch\csrc\jit\argument_spec.h`
+
 Search for
 
 ```C
@@ -37,6 +43,7 @@ static const size_t DEPTH_LIMIT = 128;
 
 Location of second file:
 `.\detectron2-env\Lib\site-packages\torch\include\pybind11\cast.h`
+
 Search for
 
 ```C

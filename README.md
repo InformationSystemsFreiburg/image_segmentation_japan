@@ -1,14 +1,12 @@
-# Image Segmentation
+# Image Segmentation with detectron2
 
 ## Installation (Windows)
 
+- install [Python 3](https://www.python.org/ftp/python/3.8.1/python-3.8.1.exe) and add it to PATH
+- install [git](https://git-scm.com/download/win) and add it to PATH
+- install [Visual Studio Code Community Edition](https://visualstudio.microsoft.com/thank-you-downloading-visual-studio/?sku=Community&rel=16) to get the GCC compiler
+
 ```bash
-# install Python 3 and add it to PATH
-https://www.python.org/ftp/python/3.8.1/python-3.8.1.exe
-# install git and add it to PATH
-https://git-scm.com/download/win
-# install Visual Studio Code Community Edition to get the GCC compiler
-https://visualstudio.microsoft.com/thank-you-downloading-visual-studio/?sku=Community&rel=16
 # check in terminal if gcc is installed, if not, try restarting the computer
 gcc --version
 # create a new Python virtualenvironment
@@ -31,7 +29,7 @@ Search for
 static constexpr size_t DEPTH_LIMIT = 128;
 ```
 
-change to ->
+change to →
 
 ```C
 static const size_t DEPTH_LIMIT = 128;
@@ -45,7 +43,7 @@ Search for
 explicit operator type&() { return *(this->value); }
 ```
 
-change to ->
+change to →
 
 ```C
 explicit operator type&() { return *((type*)this->value); }
@@ -111,5 +109,22 @@ plt.imshow(v.get_image()[:, :, ::-1])
 # save image
 plt.savefig("output.jpg")
 ```
+
 The `output.jpg` should look like this:
 ![output](output.jpg "Output")
+
+## Data Preparation
+
+- Download [VGG Annotator](http://www.robots.ox.ac.uk/~vgg/software/via/downloads/via-2.0.8.zip) and open the HTML file in the browser:
+- Short introductions ([1](http://www.robots.ox.ac.uk/~vgg/software/via/docs/add_images_to_project.html), [2](http://www.robots.ox.ac.uk/~vgg/software/via/docs/drawing_regions.html)) on how to use the tool:
+
+Exporting Annotations:
+
+- Click Annotations → Export annotations in top menubar (COCO format)
+
+Saving and Loading a Project:
+
+- Click Project → Save in top menubar
+- Click Project → Load in top menubar and select the json file containing VIA project.
+
+describe the code for creating a dataset

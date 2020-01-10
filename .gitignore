@@ -1,0 +1,11 @@
+/data
+/.vscode
+/runs
+/__pycache__
+Pipfile
+Pipfile.lock
+stuff.md
+test.py
+/lightning_logs
+/MNIST
+/detectron2

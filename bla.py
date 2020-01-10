@@ -36,3 +36,8 @@ v = v.draw_instance_predictions(outputs["instances"].to("cpu"))
 plt.imshow(v.get_image()[:, :, ::-1])
 # save image
 plt.savefig("output.jpg")
+
+# DATA SHOULD BE SUPER EASY TO ADD
+#from detectron2.data.datasets import register_coco_instances
+#register_coco_instances("my_dataset", {}, "json_annotation.json", "path/to/image/dir")
+#https://detectron2.readthedocs.io/tutorials/datasets.html#register-a-dataset

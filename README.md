@@ -58,7 +58,7 @@ explicit operator type&() { return *((type*)this->value); }
 
 ```bash
 # clone this repository
-git clone https://github.com/conansherry/detectron2
+git clone https://github.com/MarkusRosen/detectron2
 # move into the detectron2 folder
 cd detectron2
 # build the package (this will take a few minutes)

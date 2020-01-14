@@ -19,9 +19,9 @@ virtualenv detectron2-env
 .\detectron2-env\Scripts\activate
 # install the following Python packages
 pip install numpy pandas tqdm matplotlib seaborn psutil cython opencv-python
-pip install "git+https://github.com/facebookresearch/fvcore"
+pip install "git+https://github.com/MarkusRosen/fvcore"
 pip install torch===1.3.1 torchvision===0.4.2 -f https://download.pytorch.org/whl/torch_stable.html
-pip install "git+https://github.com/philferriere/cocoapi.git#egg=pycocotools&subdirectory=PythonAPI"
+pip install "git+https://github.com/MarkusRosen/cocoapi.git#egg=pycocotools&subdirectory=PythonAPI"
 ```
 
 Pytorch libraries have to be changed on Windows to work with `detectron2`

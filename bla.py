@@ -41,3 +41,7 @@ plt.savefig("output.jpg")
 #from detectron2.data.datasets import register_coco_instances
 #register_coco_instances("my_dataset", {}, "json_annotation.json", "path/to/image/dir")
 #https://detectron2.readthedocs.io/tutorials/datasets.html#register-a-dataset
+
+# test in CMD 
+# cd detectron2
+# python demo/demo.py --config-file configs/COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x.yaml --webcam --opts MODEL.WEIGHTS detectron2://COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x/137849600/model_final_f10217.pkl

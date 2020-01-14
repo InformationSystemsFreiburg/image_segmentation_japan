@@ -19,7 +19,7 @@ virtualenv detectron2-env
 .\detectron2-env\Scripts\activate
 # install the following Python packages
 pip install numpy pandas tqdm matplotlib seaborn psutil cython opencv-python
-pip install git+https://github.com/facebookresearch/fvcore
+pip install "git+https://github.com/facebookresearch/fvcore"
 pip install torch===1.3.1 torchvision===0.4.2 -f https://download.pytorch.org/whl/torch_stable.html
 pip install "git+https://github.com/philferriere/cocoapi.git#egg=pycocotools&subdirectory=PythonAPI"
 ```
@@ -73,7 +73,7 @@ python
 >>> exit()
 ```
 
-To check if everything is working with the models, download this image, save it as `input.jpg` and and the following code:
+To check if everything is working with the models, download this image, save it as `input.jpg` and run the following code:
 `http://images.cocodataset.org/val2017/000000439715.jpg`
 
 ```python

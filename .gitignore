@@ -10,3 +10,7 @@ test.py
 /MNIST
 /detectron2
 /detectron2-env
+/inputs
+/outputs
+/via-2.0.8/balloon
+/output

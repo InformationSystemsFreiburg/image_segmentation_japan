@@ -1,6 +1,6 @@
 # Instance Image Segmentation with detectron2
 
-This small tutorial is targeted at researchers that have basic machine learning and Python programming skills that want to implement instance image segmentation for further use in their models. detectron2 is still under heavy development and as of January 2020 usable with Windows without some code changes that are explained in [this chapter](#installation-windows). All software used is forked, so that there should be no API changes and this tutorial should continue to work as written. For training, a CUDA capable Nvidia-GPU ist required, inferencing with a trained model can be done on CPU. [Google collab](https://colab.research.google.com/drive/16jcaJoc6bCFAQ96jDe2HwtXj7BMD_-m5#scrollTo=8IRGo8d0qkgR)might also be an option.
+This small tutorial is targeted at researchers that have basic machine learning and Python programming skills that want to implement instance image segmentation for further use in their models. detectron2 is still under heavy development and as of January 2020 usable with Windows without some code changes that are explained in [this chapter](#installation-windows). All software used is forked, so that there should be no API changes and this tutorial should continue to work as written. For training, a CUDA capable Nvidia GPU ist required, inferencing with a trained model can be done on CPU. [Google collab](https://colab.research.google.com/drive/16jcaJoc6bCFAQ96jDe2HwtXj7BMD_-m5#scrollTo=8IRGo8d0qkgR) might also be an option.
 
 ## Table of Contents
 
@@ -17,7 +17,7 @@ This small tutorial is targeted at researchers that have basic machine learning 
 ## Requirements for this tutorial
 
 - Windows installation
-- NVidia GPU
+- Nvidia GPU
 - Python 3
 - if the requirements are not met:
   - detectron2 has a [similar tutorial](https://colab.research.google.com/drive/16jcaJoc6bCFAQ96jDe2HwtXj7BMD_-m5#scrollTo=8IRGo8d0qkgR) on Google Collab
@@ -353,3 +353,43 @@ if __name__ == "__main__":
 ```
 
 ## Inferencing on CPU
+
+- Inferencing on the CPU is possible by setting `cfg.MODEL.DEVICE = "cpu"` 
+- CPU inferencing will be a lot slower than on GPU (on my device 8x slower)
+
+```python
+    # set device to CPU
+    cfg.MODEL.DEVICE = "cpu"
+    # load the trained weights from the output folder
+    
+    cfg.MODEL.WEIGHTS = os.path.join(cfg.OUTPUT_DIR, "model_final.pth")
+    cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = (
+        0.70  # set the testing threshold for this model
+    )
+
+    # load the validation data
+    cfg.DATASETS.TEST = ("buildings_val",)
+    # create a predictor
+    predictor = DefaultPredictor(cfg)
+
+    print("Time needed for training:", datetime.now() - start)
+    start = datetime.now()
+    dataset_dicts = get_building_dicts("./via-2.0.8/buildings/val")
+    # save the results of the validation predictions as pictures in the ouputs folder
+    for i, dataset in enumerate(dataset_dicts):
+
+        im = cv2.imread(dataset["file_name"])
+        outputs = predictor(im)
+
+        v = Visualizer(
+            im[:, :, ::-1],
+            metadata=building_metadata,
+            scale=0.8,
+            instance_mode=ColorMode.IMAGE_BW,  # remove the colors of unsegmented pixels
+        )
+
+        v = v.draw_instance_predictions(outputs["instances"].to("cpu"))
+        plt.imshow(v.get_image()[:, :, ::-1])
+        plt.savefig(f"./outputs/output_{i}.jpg")
+    print("Time needed for inferencing:", datetime.now() - start)
+```

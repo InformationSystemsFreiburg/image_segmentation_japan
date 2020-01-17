@@ -1,4 +1,16 @@
-# Image Segmentation with detectron2
+# Instance Image Segmentation with detectron2
+
+This small tutorial is targeted at researchers that have basic machine learning and Python programming skills that want to implement instance image segmentation for further use in their models. detectron2 is still under heavy development and as of January 2020 usable with Windows without some code changes that are explained in [this chapter](#installation-windows). All software used is forked, so that there should be no API changes and this tutorial should continue to work as written. For training, a CUDA capable Nvidia-GPU ist required, inferencing with a trained model can be done on CPU. [Google collab](https://colab.research.google.com/drive/16jcaJoc6bCFAQ96jDe2HwtXj7BMD_-m5#scrollTo=8IRGo8d0qkgR)might also be an option.
+
+## Table of Contents
+
+[Requirements for this tutorial](#requirements-for-this-tutorial)
+[Installation (Windows)](#installation-windows)
+[Data Preparation](#data-preparation)
+[Preparing the Dataset in Python](#preparing-the-dataset-in-python)
+[Training the Model](#training-the-model)
+[Inferencing on new Data](#inferencing-on-new-data)
+[Inferencing on CPU](#inferencing-on-cpu)
 
 ## Requirements for this tutorial
 
@@ -8,6 +20,7 @@
 - if the requirements are not met:
   - detectron2 has a [similar tutorial](https://colab.research.google.com/drive/16jcaJoc6bCFAQ96jDe2HwtXj7BMD_-m5#scrollTo=8IRGo8d0qkgR) on Google Collab
   - Google Collab provides a Python programming environment with GPU support for free
+- for inferencing with a trained model on new data, you can also use a CPU, see [Inferencing on CPU](#inferencing-on-cpu))
 
 ## Installation (Windows)
 
@@ -118,12 +131,13 @@ import matplotlib.pyplot as plt
 im = cv2.imread("./input.jpg")
 plt.imshow(im)
 cfg = get_cfg()
-# add project-specific config (e.g., TensorMask) here if you're not running a model in detectron2's core library
+# you can choose alternative models as backbone here
 cfg.merge_from_file(
     "./detectron2/detectron2/model_zoo/configs/COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x.yaml"
 )
 
 cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.5
+# if you changed the model above, you need to adapt the following line as well
 cfg.MODEL.WEIGHTS = "detectron2://COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x/137849600/model_final_f10217.pkl"
 predictor = DefaultPredictor(cfg)
 outputs = predictor(im)
@@ -152,6 +166,7 @@ The `output.jpg` should look like this:
 - save the project
 - copy images to the `train` and `val` folders
 - import the images to the `VGG Annotator`
+- zoom into the image with `CTRL` + `Mousewheel`
 - select the `polygon region shape` tool and start with marking the `windows`
 - after a polygon is finished, press `s` to save it
 - after all `window` polygons are created, create the `building` polygons
@@ -265,12 +280,13 @@ if __name__ == "__main__":
         plt.savefig(f"./inputs/input_{i}.jpg")
 ```
 
-## Training the model
+## Training the Model
 
 - depending on the data size, the hardware used and the amount of iterations, the training can take a few minutes to a few hours.
 
 ```python
     cfg = get_cfg()
+    # you can choose alternative models as backbone here
     cfg.merge_from_file(
         "./detectron2/detectron2/model_zoo/configs/COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x.yaml"
     )
@@ -278,6 +294,7 @@ if __name__ == "__main__":
     cfg.DATASETS.TRAIN = ("buildings_train",)
     cfg.DATASETS.TEST = ()
     cfg.DATALOADER.NUM_WORKERS = 2
+    # if you changed the model above, you need to adapt the following line as well
     cfg.MODEL.WEIGHTS = model_zoo.get_checkpoint_url(
         "COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x.yaml"
     )  # Let training initialize from model zoo
@@ -298,12 +315,13 @@ if __name__ == "__main__":
     print("Time needed for training:", datetime.now() - start)
 ```
 
-## Inferencing on new data
+## Inferencing on new Data
 
 - the trained model is save in `/output/model_final.pth` and can now be loaded for inferencing. 
 - compared to training, inferencing should be very fast.
 
 ```python
+    # load the trained weights from the output folder
     cfg.MODEL.WEIGHTS = os.path.join(cfg.OUTPUT_DIR, "model_final.pth")
     cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = (
         0.50  # set the testing threshold for this model
@@ -331,3 +349,5 @@ if __name__ == "__main__":
         # the outputs folder has to be created before running this line
         plt.savefig(f"./outputs/output_{i}.jpg")
 ```
+
+## Inferencing on CPU

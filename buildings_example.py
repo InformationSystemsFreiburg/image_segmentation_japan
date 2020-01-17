@@ -16,7 +16,7 @@ import cv2
 import random
 from datetime import datetime
 
-def get_balloon_dicts(img_dir):
+def get_building_dicts(img_dir):
     json_file = os.path.join(img_dir, "via_region_data.json")
     with open(json_file) as f:
         imgs_anns = json.load(f)
@@ -72,12 +72,12 @@ if __name__ == "__main__":
     for d in ["train", "val"]:
         DatasetCatalog.register(
             "buildings_" + d,
-            lambda d=d: get_balloon_dicts("./via-2.0.8/buildings/" + d),
+            lambda d=d: get_building_dicts("./via-2.0.8/buildings/" + d),
         )
         # MetadataCatalog.get("buildings_" + d).set(thing_classes=["buildings"])
     building_metadata = MetadataCatalog.get("buildings_train")
 
-    dataset_dicts = get_balloon_dicts("./via-2.0.8/buildings/train")
+    dataset_dicts = get_building_dicts("./via-2.0.8/buildings/train")
 
     for i, d in enumerate(random.sample(dataset_dicts, 5)):
         img = cv2.imread(d["file_name"])
@@ -101,7 +101,7 @@ if __name__ == "__main__":
     )  # Let training initialize from model zoo
     cfg.SOLVER.IMS_PER_BATCH = 2
     cfg.SOLVER.BASE_LR = 0.00025  # pick a good LR
-    cfg.SOLVER.MAX_ITER = 1000  # 300 iterations seems good enough for this toy dataset; you may need to train longer for a practical dataset
+    cfg.SOLVER.MAX_ITER = 5000  # 300 iterations seems good enough for this toy dataset; you may need to train longer for a practical dataset
     cfg.MODEL.ROI_HEADS.BATCH_SIZE_PER_IMAGE = (
         512  # faster, and good enough for this toy dataset (default: 512)
     )
@@ -109,10 +109,10 @@ if __name__ == "__main__":
 
 
     start = datetime.now()
-    #os.makedirs(cfg.OUTPUT_DIR, exist_ok=True)
-    #trainer = DefaultTrainer(cfg)
-    #trainer.resume_or_load(resume=False)
-    #trainer.train()
+    os.makedirs(cfg.OUTPUT_DIR, exist_ok=True)
+    trainer = DefaultTrainer(cfg)
+    trainer.resume_or_load(resume=False)
+    trainer.train()
 
     cfg.MODEL.WEIGHTS = os.path.join(cfg.OUTPUT_DIR, "model_final.pth")
     cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = (
@@ -123,7 +123,7 @@ if __name__ == "__main__":
 
     print(datetime.now() - start)
 
-    dataset_dicts = get_balloon_dicts("./via-2.0.8/buildings/val")
+    dataset_dicts = get_building_dicts("./via-2.0.8/buildings/val")
     for i, dataset in enumerate(dataset_dicts):
  
         im = cv2.imread(dataset["file_name"])
@@ -136,8 +136,8 @@ if __name__ == "__main__":
             instance_mode=ColorMode.IMAGE_BW,  # remove the colors of unsegmented pixels
         )
         #print(dir(dataset))
-        if i==5:
-            print(outputs)
+        #if i==5:
+        #    print(outputs)
         v = v.draw_instance_predictions(outputs["instances"].to("cpu"))
         plt.imshow(v.get_image()[:, :, ::-1])
         plt.savefig(f"./outputs/output_{i}.jpg")

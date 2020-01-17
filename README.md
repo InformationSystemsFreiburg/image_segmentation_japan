@@ -73,8 +73,8 @@ python
 >>> exit()
 ```
 
-To check if everything is working with the models, download this image, save it as `input.jpg` and run the following code:
-`http://images.cocodataset.org/val2017/000000439715.jpg`
+To check if everything is working with the models, run the following code:
+
 
 ```python
 import detectron2
@@ -122,16 +122,193 @@ The `output.jpg` should look like this:
 
 ## Data Preparation
 
-- Download [VGG Annotator](http://www.robots.ox.ac.uk/~vgg/software/via/downloads/via-2.0.8.zip) and open the HTML file in the browser:
-- Short introductions ([1](http://www.robots.ox.ac.uk/~vgg/software/via/docs/add_images_to_project.html), [2](http://www.robots.ox.ac.uk/~vgg/software/via/docs/drawing_regions.html)) on how to use the tool:
+- Create a folder named `buildings`
+- within this folder, create two folders: `val` and `train`
+- Open the `VGG Annotator` and open the HTML file in the browser:
+- Short introductions on how to use the tool:
+  - Go to settings and specify the default path to where your train folder is located, example: `../data/buildings/train/` 
+  - create a new attributes called `class`
+  - set this attribute to `checkbox`
+  - add `building` and `window` as options to `class`
+- save the project
+- copy images to the `train` and `val` folders
+- import the images to the `VGG Annotator`
+- select the `polygon region shape` tool and start with marking the `windows`
+- after a polygon is finished, press `s` to save it
+- after all `window` polygons are created, create the `building` polygons
+- press `Spacebar` to open the annotations
+- specify the correct `class` to each polygon
+- after an image is done, save the project
+- after all images are done, export the annotations to `train` as .json files and rename them to `via_region_data.json`
+- do all of the above steps also for the validation data
 
-Exporting Annotations:
+## Preparing the Dataset in Python
 
-- Click Annotations → Export annotations in top menubar (COCO format)
+```python
 
-Saving and Loading a Project:
+from detectron2.structures import BoxMode
+from detectron2.utils.visualizer import Visualizer
+from detectron2.engine import DefaultPredictor
+from detectron2.data import DatasetCatalog, MetadataCatalog
+from detectron2.utils.visualizer import ColorMode
+from detectron2.engine import DefaultTrainer
+from detectron2.config import get_cfg
+from detectron2 import model_zoo
 
-- Click Project → Save in top menubar
-- Click Project → Load in top menubar and select the json file containing VIA project.
+import os
+import numpy as np
+import json
+import matplotlib.pyplot as plt
+import cv2
+import random
+from datetime import datetime
 
-describe the code for creating a dataset
+def get_building_dicts(img_dir):
+    """This function loads the JSON file created with the annotator and converts it to 
+    the detectron2 metadata specifications.
+    """
+    # load the JSON file
+    json_file = os.path.join(img_dir, "via_region_data.json")
+    with open(json_file) as f:
+        imgs_anns = json.load(f)
+
+    dataset_dicts = []
+    # loop through the entries in the JSON file
+    for idx, v in enumerate(imgs_anns.values()):
+        record = {}
+        # add file_name, image_id, height and width information to the records
+        filename = os.path.join(img_dir, v["filename"])
+        height, width = cv2.imread(filename).shape[:2]
+
+        record["file_name"] = filename
+        record["image_id"] = idx
+        record["height"] = height
+        record["width"] = width
+
+        annos = v["regions"]
+
+        objs = []
+        # one image can have multiple annotations, therefore this loop is needed
+        for annotation in annos:
+            # reformat the polygon information to fit the specifications
+            anno = annotation["shape_attributes"]
+            px = anno["all_points_x"]
+            py = anno["all_points_y"]
+            poly = [(x + 0.5, y + 0.5) for x, y in zip(px, py)]
+            poly = [p for x in poly for p in x]
+  
+            region_attributes = annotation["region_attributes"]["class"]
+            # specify the category_id to match with the class. 
+
+            elif "building" in region_attributes:
+                category_id = 1
+            elif "window" in region_attributes:
+                category_id = 0
+
+            obj = {
+                "bbox": [np.min(px), np.min(py), np.max(px), np.max(py)],
+                "bbox_mode": BoxMode.XYXY_ABS,
+                "segmentation": [poly],
+                "category_id": category_id,
+                "iscrowd": 0,
+            }
+            objs.append(obj)
+        record["annotations"] = objs
+        dataset_dicts.append(record)
+
+    return dataset_dicts
+```
+
+- On Windows, all PyTorch code needs to be run within `if __name__ == '__main__':`
+- load the data and draw a few input images to check if the annotations are correct:
+
+```python
+if __name__ == "__main__":
+    # the data has to be registered within detectron2, once for the train and once for
+    # the val data
+    for d in ["train", "val"]:
+        DatasetCatalog.register(
+            "buildings_" + d,
+            lambda d=d: get_building_dicts("./via-2.0.8/buildings/" + d),
+        )
+        
+    building_metadata = MetadataCatalog.get("buildings_train")
+
+    dataset_dicts = get_building_dicts("./via-2.0.8/buildings/train")
+
+    for i, d in enumerate(random.sample(dataset_dicts, 5)):
+        img = cv2.imread(d["file_name"])
+        visualizer = Visualizer(img[:, :, ::-1], metadata=building_metadata, scale=0.5)
+        vis = visualizer.draw_dataset_dict(d)
+
+        plt.imshow(vis.get_image()[:, :, ::-1])
+        # the folder inputs has to be created first
+        plt.savefig(f"./inputs/input_{i}.jpg")
+```
+
+## Training the model
+
+- depending on the data size, the hardware used and the amount of iterations, the training can take a few minutes to a few hours.
+
+```python
+    cfg = get_cfg()
+    cfg.merge_from_file(
+        "./detectron2/detectron2/model_zoo/configs/COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x.yaml"
+    )
+
+    cfg.DATASETS.TRAIN = ("buildings_train",)
+    cfg.DATASETS.TEST = ()
+    cfg.DATALOADER.NUM_WORKERS = 2
+    cfg.MODEL.WEIGHTS = model_zoo.get_checkpoint_url(
+        "COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x.yaml"
+    )  # Let training initialize from model zoo
+    cfg.SOLVER.IMS_PER_BATCH = 2
+    cfg.SOLVER.BASE_LR = 0.00025  # pick a good LR, 0.00025 seems a good start
+    cfg.SOLVER.MAX_ITER = 5000  # 300 iterations is a good start, for better accuracy increase this value
+    cfg.MODEL.ROI_HEADS.BATCH_SIZE_PER_IMAGE = (
+        512  # (default: 512), select smaller if faster training is needed
+    )
+    cfg.MODEL.ROI_HEADS.NUM_CLASSES = 2  # for the two classes window and building
+    start = datetime.now()
+    # for inferencing, the following 4 lines of code should be commented out
+    
+    os.makedirs(cfg.OUTPUT_DIR, exist_ok=True)
+    trainer = DefaultTrainer(cfg)
+    trainer.resume_or_load(resume=False)
+    trainer.train()
+    print("Time needed for training:", datetime.now() - start)
+```
+
+## Inferencing on new data
+
+- the trained model is save in `/output/model_final.pth` and can now be loaded for inferencing. 
+- compared to training, inferencing should be very fast.
+
+```python
+    cfg.MODEL.WEIGHTS = os.path.join(cfg.OUTPUT_DIR, "model_final.pth")
+    cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = (
+        0.50  # set the testing threshold for this model
+    )
+    cfg.DATASETS.TEST = ("buildings_val",)
+    predictor = DefaultPredictor(cfg)
+    
+    # load the validation data
+    dataset_dicts = get_building_dicts("./via-2.0.8/buildings/val")
+    # save the results of the validation predictions as pictures in the ouputs folder
+    for i, dataset in enumerate(dataset_dicts):
+ 
+        im = cv2.imread(dataset["file_name"])
+        outputs = predictor(im)
+
+        v = Visualizer(
+            im[:, :, ::-1],
+            metadata=building_metadata,
+            scale=0.8,
+            instance_mode=ColorMode.IMAGE_BW,  # remove the colors of unsegmented pixels
+        )
+
+        v = v.draw_instance_predictions(outputs["instances"].to("cpu"))
+        plt.imshow(v.get_image()[:, :, ::-1])
+        # the outputs folder has to be created before running this line
+        plt.savefig(f"./outputs/output_{i}.jpg")
+```

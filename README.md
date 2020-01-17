@@ -1,5 +1,14 @@
 # Image Segmentation with detectron2
 
+## Requirements for this tutorial
+
+- Windows installation
+- NVidia GPU
+- Python 3
+- if the requirements are not met:
+  - detectron2 has a [similar tutorial](https://colab.research.google.com/drive/16jcaJoc6bCFAQ96jDe2HwtXj7BMD_-m5#scrollTo=8IRGo8d0qkgR) on Google Collab
+  - Google Collab provides a Python programming environment with GPU support for free
+
 ## Installation (Windows)
 
 - install [Python 3](https://www.python.org/ftp/python/3.8.1/python-3.8.1.exe) and add it to PATH

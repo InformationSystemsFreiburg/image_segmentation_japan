@@ -4,13 +4,15 @@ This small tutorial is targeted at researchers that have basic machine learning 
 
 ## Table of Contents
 
-[Requirements for this tutorial](#requirements-for-this-tutorial)
-[Installation (Windows)](#installation-windows)
-[Data Preparation](#data-preparation)
-[Preparing the Dataset in Python](#preparing-the-dataset-in-python)
-[Training the Model](#training-the-model)
-[Inferencing on new Data](#inferencing-on-new-data)
-[Inferencing on CPU](#inferencing-on-cpu)
+- [Instance Image Segmentation with detectron2](#instance-image-segmentation-with-detectron2)
+  - [Table of Contents](#table-of-contents)
+  - [Requirements for this tutorial](#requirements-for-this-tutorial)
+  - [Installation (Windows)](#installation-windows)
+  - [Data Preparation](#data-preparation)
+  - [Preparing the Dataset in Python](#preparing-the-dataset-in-python)
+  - [Training the Model](#training-the-model)
+  - [Inferencing on new Data](#inferencing-on-new-data)
+  - [Inferencing on CPU](#inferencing-on-cpu)
 
 ## Requirements for this tutorial
 

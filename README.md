@@ -3,6 +3,7 @@
 ## Installation (Windows)
 
 - install [Python 3](https://www.python.org/ftp/python/3.8.1/python-3.8.1.exe) and add it to PATH
+- install [CUDA](https://docs.nvidia.com/cuda/cuda-installation-guide-microsoft-windows/index.html)
 - install [git](https://git-scm.com/download/win) and add it to PATH
 - clone this repository with
 `git clone https://github.com/InformationSystemsFreiburg/imgage_segmentation_tokyo`
@@ -22,6 +23,15 @@ pip install numpy pandas tqdm matplotlib seaborn psutil cython opencv-python
 pip install "git+https://github.com/MarkusRosen/fvcore"
 pip install torch===1.3.1 torchvision===0.4.2 -f https://download.pytorch.org/whl/torch_stable.html
 pip install "git+https://github.com/MarkusRosen/cocoapi.git#egg=pycocotools&subdirectory=PythonAPI"
+```
+
+- to check if the GPU is recognized within PyTorch, you can run the following code
+- if the console output shows no GPU, you need to check your CUDA, Python and PyTorch installations
+
+```python
+from utils import check_gpu
+
+check_gpu
 ```
 
 Pytorch libraries have to be changed on Windows to work with `detectron2`

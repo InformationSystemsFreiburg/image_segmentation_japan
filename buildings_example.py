@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 import cv2
 import random
 from datetime import datetime
-
+import pickle
 
 def get_building_dicts(img_dir):
     """This function loads the JSON file created with the annotator and converts it to 
@@ -113,7 +113,7 @@ if __name__ == "__main__":
     )  # Let training initialize from model zoo
     cfg.SOLVER.IMS_PER_BATCH = 2
     cfg.SOLVER.BASE_LR = 0.00025   # pick a good LR, 0.00025 seems a good start
-    cfg.SOLVER.MAX_ITER = 5000  # 300 iterations is a good start, for better accuracy increase this value
+    cfg.SOLVER.MAX_ITER = 300  # 300 iterations is a good start, for better accuracy increase this value
     cfg.MODEL.ROI_HEADS.BATCH_SIZE_PER_IMAGE = (
         512  # (default: 512), select smaller if faster training is needed
     )
@@ -121,16 +121,16 @@ if __name__ == "__main__":
 
     start = datetime.now()
     # for inferencing, the following 4 lines of code should be commented out
-    # os.makedirs(cfg.OUTPUT_DIR, exist_ok=True)
-    # trainer = DefaultTrainer(cfg)
-    # trainer.resume_or_load(resume=False)
-    # trainer.train()
+    #os.makedirs(cfg.OUTPUT_DIR, exist_ok=True)
+    #trainer = DefaultTrainer(cfg)
+    #trainer.resume_or_load(resume=False)
+    #trainer.train()
 
     # load the trained weights from the output folder
     # cfg.MODEL.DEVICE = "cpu"
     cfg.MODEL.WEIGHTS = os.path.join(cfg.OUTPUT_DIR, "model_final.pth")
     cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = (
-        0.70  # set the testing threshold for this model
+        0.30  # set the testing threshold for this model
     )
 
     # load the validation data
@@ -146,7 +146,8 @@ if __name__ == "__main__":
 
         im = cv2.imread(dataset["file_name"])
         outputs = predictor(im)
-
+        with open(f"./data/predictions_{i}.pkl", "wb") as f:
+            pickle.dump(outputs, f)
         v = Visualizer(
             im[:, :, ::-1],
             metadata=building_metadata,

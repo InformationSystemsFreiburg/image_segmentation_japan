@@ -50,7 +50,7 @@ def draw_mask(img, mask, category):
     return img
 
 
-i = 19
+i = 6
 device = "cpu"
 with open(f"./data/predictions/predictions_{i}.pkl", "rb") as f:
 

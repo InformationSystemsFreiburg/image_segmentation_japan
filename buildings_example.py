@@ -108,7 +108,7 @@ if __name__ == "__main__":
 
     cfg.DATASETS.TRAIN = ("buildings_train",)
     cfg.DATASETS.TEST = ()
-    cfg.DATALOADER.NUM_WORKERS = 4
+    cfg.DATALOADER.NUM_WORKERS = 2
     # if you changed the model above, you need to adapt the following line as well
     cfg.MODEL.WEIGHTS = model_zoo.get_checkpoint_url(
         # "COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x.yaml"

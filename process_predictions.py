@@ -69,7 +69,7 @@ with open(f"./data/predictions/predictions_{i}.pkl", "rb") as f:
         .numpy()
     )
 
-    img = Image.open(prediction["file_name"])
+    img = Image.open(prediction["file_location"])
     categories = (
         prediction["prediction"]["instances"]
         .get_fields()["pred_classes"]
@@ -90,6 +90,7 @@ with open(f"./data/predictions/predictions_{i}.pkl", "rb") as f:
 
         data = {}
         data["file_name"] = prediction["file_name"]
+        data["file_location"] = prediction["file_location"]
         if categories[i] == 0:
             data["id"] = f"w_{counter_window}"
             counter_window = counter_window + 1
@@ -109,7 +110,7 @@ with open(f"./data/predictions/predictions_{i}.pkl", "rb") as f:
             text,
             data["category"],
             data["id"],
-            draw_box=False,
+            draw_box=True,
         )
     for i, data in enumerate(dataset):
         img = draw_mask(img, data["mask"], data["category"])

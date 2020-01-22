@@ -15,6 +15,8 @@ import cv2
 import random
 from datetime import datetime
 import pickle
+from pathlib import Path
+from tqdm import tqdm
 
 
 def get_building_dicts(img_dir):
@@ -124,10 +126,10 @@ if __name__ == "__main__":
 
     start = datetime.now()
     # for inferencing, the following 4 lines of code should be commented out
-    os.makedirs(cfg.OUTPUT_DIR, exist_ok=True)
-    trainer = DefaultTrainer(cfg)
-    trainer.resume_or_load(resume=False)
-    trainer.train()
+    # os.makedirs(cfg.OUTPUT_DIR, exist_ok=True)
+    # trainer = DefaultTrainer(cfg)
+    # trainer.resume_or_load(resume=False)
+    # trainer.train()
 
     # load the trained weights from the output folder
     # cfg.MODEL.DEVICE = "cpu"
@@ -143,14 +145,18 @@ if __name__ == "__main__":
 
     print("Time needed for training:", datetime.now() - start)
     start = datetime.now()
-    dataset_dicts = get_building_dicts("./via-2.0.8/buildings/val")
-    # save the results of the validation predictions as pictures in the ouputs folder
-    for i, dataset in enumerate(dataset_dicts):
 
-        im = cv2.imread(dataset["file_name"])
+    validation_folder = Path("./via-2.0.8/buildings/val")
+
+    for i, file in enumerate(validation_folder.glob("*.jpg")):
+        file = str(file)
+        file_name = file.split("\\")[-1]
+        im = cv2.imread(file)
+
         outputs = predictor(im)
         output_with_filename = {}
-        output_with_filename["file_name"] = dataset["file_name"]
+        output_with_filename["file_name"] = file_name
+        output_with_filename["file_location"] = file
         output_with_filename["prediction"] = outputs
         with open(f"./data/predictions/predictions_{i}.pkl", "wb") as f:
             pickle.dump(output_with_filename, f)

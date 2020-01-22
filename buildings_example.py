@@ -108,16 +108,16 @@ if __name__ == "__main__":
 
     cfg.DATASETS.TRAIN = ("buildings_train",)
     cfg.DATASETS.TEST = ()
-    cfg.DATALOADER.NUM_WORKERS = 2
+    cfg.DATALOADER.NUM_WORKERS = 8
     # if you changed the model above, you need to adapt the following line as well
     cfg.MODEL.WEIGHTS = model_zoo.get_checkpoint_url(
         # "COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x.yaml"
         "COCO-InstanceSegmentation/mask_rcnn_R_101_FPN_3x.yaml"
     )  # Let training initialize from model zoo
-    cfg.SOLVER.IMS_PER_BATCH = 2
+    cfg.SOLVER.IMS_PER_BATCH = 5
     cfg.SOLVER.BASE_LR = 0.00025  # pick a good LR, 0.00025 seems a good start
     cfg.SOLVER.MAX_ITER = (
-        5000  # 300 iterations is a good start, for better accuracy increase this value
+        150000  # 300 iterations is a good start, for better accuracy increase this value
     )
     cfg.MODEL.ROI_HEADS.BATCH_SIZE_PER_IMAGE = (
         512  # (default: 512), select smaller if faster training is needed

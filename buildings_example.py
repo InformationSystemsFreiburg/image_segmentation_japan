@@ -126,10 +126,10 @@ if __name__ == "__main__":
 
     start = datetime.now()
     # for inferencing, the following 4 lines of code should be commented out
-    # os.makedirs(cfg.OUTPUT_DIR, exist_ok=True)
-    # trainer = DefaultTrainer(cfg)
-    # trainer.resume_or_load(resume=False)
-    # trainer.train()
+    os.makedirs(cfg.OUTPUT_DIR, exist_ok=True)
+    trainer = DefaultTrainer(cfg)
+    trainer.resume_or_load(resume=False)
+    trainer.train()
 
     # load the trained weights from the output folder
     # cfg.MODEL.DEVICE = "cpu"

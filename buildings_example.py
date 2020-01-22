@@ -114,7 +114,7 @@ if __name__ == "__main__":
         # "COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x.yaml"
         "COCO-InstanceSegmentation/mask_rcnn_R_101_FPN_3x.yaml"
     )  # Let training initialize from model zoo
-    cfg.SOLVER.IMS_PER_BATCH = 4
+    cfg.SOLVER.IMS_PER_BATCH = 2
     cfg.SOLVER.BASE_LR = 0.00025  # pick a good LR, 0.00025 seems a good start
     cfg.SOLVER.MAX_ITER = (
         150000  # 300 iterations is a good start, for better accuracy increase this value

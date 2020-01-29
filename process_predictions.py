@@ -279,8 +279,7 @@ if __name__ == "__main__":
     # the following code is for non mp only:
     dataset = []
 
-    for file_location in prediction_list:
-
+    for file_location in tqdm(prediction_list):
         dataset_part = process_data(file_location)
         dataset.append(dataset_part)
 

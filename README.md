@@ -1,6 +1,6 @@
 # Instance Image Segmentation with detectron2
 
-This small tutorial is targeted at researchers that have basic machine learning and Python programming skills that want to implement instance image segmentation for further use in their models. detectron2 is still under heavy development and as of January 2020 usable with Windows without some code changes that are explained in [this chapter](#installation-windows). All software used is forked, so that there should be no API changes and this tutorial should continue to work as written. For training, a CUDA capable Nvidia GPU ist required, inferencing with a trained model can be done on CPU. [Google collab](https://colab.research.google.com/drive/16jcaJoc6bCFAQ96jDe2HwtXj7BMD_-m5#scrollTo=8IRGo8d0qkgR) might also be an option.
+This small tutorial is targeted at researchers that have basic machine learning and Python programming skills that want to implement instance image segmentation for further use in their models. detectron2 is still under heavy development and as of January 2020 usable with Windows without some code changes that are explained in [this chapter](#installation-windows). All software used is forked, so that there should be no API changes and this tutorial should continue to work as written. For training, a CUDA capable Nvidia GPU ist required, inferencing with a trained model can be done on CPU. If you do not have a local GPU available, you can also follow my tutorial on [Google Colab](https://colab.research.google.com/drive/1hxmdsLmqI6LR2v5SqHzH8oILXVI4eIzR).
 
 ## Table of Contents
 

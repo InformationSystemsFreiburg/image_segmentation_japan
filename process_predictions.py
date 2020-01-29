@@ -117,13 +117,8 @@ def calculate_window_perc(dataset):
         data["tagged_id"] = 0
         # loop through building
         if data["category"] == 1:
-
             data = get_tagged_id(data, json_file)
-            # print(data)
-            # if data["file_name"] == "_0CfAgwU4GRi9S6yzBbnxQ.jpg":
-            # print(data)
             window_areas = []
-
             building_mask = data["mask"]
             building_area = np.sum(data["mask"])
 

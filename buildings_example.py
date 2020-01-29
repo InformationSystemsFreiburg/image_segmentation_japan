@@ -169,6 +169,6 @@ if __name__ == "__main__":
 
         v = v.draw_instance_predictions(outputs["instances"].to("cpu"))
         plt.imshow(v.get_image()[:, :, ::-1])
-        plt.savefig(f"./outputs/output_{i}.jpg")
+        plt.savefig(f"./outputs/{file_name}.jpg")
     print("Time needed for inferencing:", datetime.now() - start)
 

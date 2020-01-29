@@ -7,7 +7,7 @@ import multiprocessing as mp
 from tqdm import tqdm
 from datetime import datetime
 import pandas as pd
-
+import json
 
 # define fonts and colors
 font_id = ImageFont.truetype("C:\\Windows\\Fonts\\Arial.ttf", 15)
@@ -22,7 +22,7 @@ device = "cpu"
 
 # this variable is True if you want to plot the output images, False if you only need
 # the CSV
-plot_data = True
+plot_data = False
 
 def draw_bounding_box(img, bounding_box, text, category, id, draw_box=False):
     """Draws a bounding box onto the image as well as the building ID and the window 
@@ -67,15 +67,77 @@ def draw_mask(img, mask, category):
 
     return img
 
+def get_tagged_id(building, json_file):
+    """Searches through the via_export_json.json of the images used for inferencing and 
+    adds all tagged_ids to the dataset."""
+    #print(building["file_name"])
+    building["tagged_id"] = 0
+    building["tagged_id_coords"] = 0
+    for idx, v in enumerate(json_file.values()):
+        annos = v["regions"]
+        #print(v["filename"])
+
+        if v["filename"] == building["file_name"]:
+            #print("v", v["filename"])
+            #print("building", building["file_name"])
+            # one image can have multiple annotations, therefore this loop is needed
+            try:
+                for annotation in annos:
+                    
+                    # reformat the polygon information to fit the specifications
+                    anno = annotation["shape_attributes"]
+                    #print(annotation)
+                    tagged_id = annotation["region_attributes"]["tagged_id"]
+                    
+                    #print(tagged_id)
+                    # print(anno)
+                    if anno["name"] == "point":
+                        # print(tagged_id)
+                        
+                        #print(anno)
+                        px = anno["cx"]
+                        py = anno["cy"]
+                        point = [py, px]
+                        #print(building["mask"][px][py])
+                        if building["mask"][py][px]:
+                            # print(building["mask"][py][px])
+                            building["tagged_id"] = tagged_id
+                            building["tagged_id_coords"] = point
+
+                        #point = [p for x in poly for p in x]
+                        #print(point)
+                        # building["tagged_id"] = 
+                        #building["tagged_id_coords"] = point
+                        #print(building)
+                #print(annotation)
+            except KeyError as e:
+                #print(e)
+                #print("missing annotation")
+                return building
+
+    
+    return building
 
 def calculate_window_perc(dataset):
     """Takes a list of prediction dictionaries as input and calculates the percentage of 
     window to fassade for each building. The result is save to the dataset. For building
     data, the actual percentage is saved, for windows, 1.0 is put in."""
+    #json_file = os.path.join(img_dir, "via_region_data.json")
+    with open("./via-2.0.8/buildings/val/via_region_data.json") as f:
+        json_file = json.load(f)
+        #print(json_file)
 
     for i, data in enumerate(dataset):
+        data["window_percentage"] = 0
+        data["pixel_area"] = 0
+        data["tagged_id"] = 0
         # loop through building
         if data["category"] == 1:
+
+            data = get_tagged_id(data, json_file)
+            #print(data)
+            if data["file_name"] == "_1COpxhN8GOKkjj0fV8yrg.jpg":
+                print(data)
             window_areas = []
 
             building_mask = data["mask"]
@@ -112,6 +174,7 @@ def create_csv(dataset):
         [
             "file_name",
             "id",
+            "tagged_id",
             "category",
             "pixel_area",
             "building_area_perc_of_image",
@@ -197,11 +260,14 @@ def process_data(file_path, plot_data=plot_data):
                 )
             for i, data in enumerate(dataset):
                 img = draw_mask(img, data["mask"], data["category"])
-
-            img.save(
-                f"./data/prediction_results/{data['file_name']}_prediction.png",
-                quality=95,
-            )
+            # if no annotations are found for the image, this needs to be skipped
+            try:
+                img.save(
+                    f"./data/prediction_results/{data['file_name']}_prediction.png",
+                    quality=95,
+                )
+            except UnboundLocalError as e:
+                print("No annotations found, skipping!")
     return dataset
 
 
@@ -227,8 +293,17 @@ if __name__ == "__main__":
         file = str(file)
         prediction_list.append(file)
 
-    dataset = apply_mp_progress(process_data, mp.cpu_count(), prediction_list)
+    # dataset = apply_mp_progress(process_data, mp.cpu_count(), prediction_list)
+    
+    # the following code is for non mp only:
+    dataset = []
 
+    for file_location in prediction_list:
+
+        dataset_part = process_data(file_location)
+        dataset.append(dataset_part)
+    
+    
     create_csv(dataset)
 
     print(datetime.now() - start)

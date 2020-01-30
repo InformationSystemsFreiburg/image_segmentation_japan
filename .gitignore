@@ -1,6 +1,7 @@
 /data
 /.vscode
 /runs
+/.mypy_cache
 /__pycache__
 Pipfile
 Pipfile.lock
